@@ -10,7 +10,7 @@ class ThreadRepository {
 
   /**
    * @param {object} threadId
-   * @returns {Promise<boolean>}
+   * @returns {Promise<void>}
    */
   async isThreadExists(threadId) {
     throw new Error("THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED");
@@ -19,10 +19,11 @@ class ThreadRepository {
   /**
    *
    * @param threadId
-   * @returns {Promise<ThreadDetailEntity>}
+   * @returns {Promise<Object>}
    */
-  async getThreadDetails(threadId) {
+  async getThreadById(threadId) {
     throw new Error("THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED");
+
   }
 }
 

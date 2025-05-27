@@ -3,7 +3,7 @@ describe("Thread Repository interface", () => {
   it("should throw error when invoke unimplemented method", async () => {
     const commentRepository = new ThreadRepository();
 
-    await expect(commentRepository.getThreadDetails("")).rejects.toThrowError(
+    await expect(commentRepository.getThreadById("")).rejects.toThrowError(
       "THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED",
     );
 

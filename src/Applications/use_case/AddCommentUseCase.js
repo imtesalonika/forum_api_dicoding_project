@@ -11,11 +11,7 @@ class AddCommentUseCase {
   async execute(payload, threadId, userId) {
     const newComment = new NewCommentEntity(payload);
 
-    const isThreadExist = await this._threadRepository.isThreadExists(threadId);
-
-    if (!isThreadExist) {
-      throw new NotFoundError("Tidak ada thread ditemukan pada database.");
-    }
+    await this._threadRepository.isThreadExists(threadId);
 
     const userData = await this._userRepository.getUserDataById(userId);
 

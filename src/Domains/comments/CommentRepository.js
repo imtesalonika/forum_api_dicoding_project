@@ -29,6 +29,16 @@ class CommentRepository {
   async deleteComment(commentId, threadId, ownerId) {
     throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
   }
+
+  /**
+   *
+   * @param threadId
+   * @returns {Promise<Object>}
+   */
+  async getCommentsByThreadId(threadId) {
+    throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
+
+  }
 }
 
 module.exports = CommentRepository;

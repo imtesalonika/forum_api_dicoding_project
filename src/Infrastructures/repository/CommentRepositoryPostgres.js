@@ -63,6 +63,31 @@ class CommentRepositoryPostgres extends CommentRepository {
       throw new InvariantError("failed to delete comment");
     }
   }
+
+  async getCommentsByThreadId(threadId) {
+    const query = {
+      text: `
+        SELECT
+          c.id,
+          c.content,  
+          c.date,
+          u.username,
+          c.is_delete 
+        FROM
+          comments c
+        JOIN
+          users u ON c.user_id = u.id
+        WHERE
+          c.thread_id = $1
+        ORDER BY
+          c.date ASC
+    `,
+      values: [threadId],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows;
+  }
 }
 
 module.exports = CommentRepositoryPostgres;

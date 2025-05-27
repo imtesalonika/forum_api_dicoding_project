@@ -4,37 +4,45 @@ const AddThreadUseCase = require("../AddThreadUseCase");
 const NewThreadEntities = require("../../../Domains/threads/entities/NewThreadEntities");
 
 describe("AddThreadUseCase", () => {
-  it("berhasil mebambahkan thread dengan payload yang valid", async () => {
+  it("berhasil menambahkan thread dengan payload yang valid dan memanggil repository dengan benar", async () => {
+    // Arrange
     const useCasePayload = new NewThreadEntities({
       title: "Ini Adalah Testing",
       body: "Halo ini adalah testing.",
     });
+    const ownerId = "user-qwerty";
 
-    const mockThreadRepository = new ThreadRepository();
-
-    const mockCreatedThreadEntity = new CreatedThreadEntity({
+    const mockExpectedCreatedThreadFromRepo = new CreatedThreadEntity({
       id: "thread-qwerty",
-      title: "Ini Adalah Testing",
-      owner: "user-qwerty",
+      title: useCasePayload.title,
+      owner: ownerId,
     });
 
+    const mockThreadRepository = new ThreadRepository();
     mockThreadRepository.addThread = jest
       .fn()
-      .mockImplementation(() => Promise.resolve(mockCreatedThreadEntity));
+      .mockResolvedValue(mockExpectedCreatedThreadFromRepo);
 
-    const mockAddThreadUseCase = new AddThreadUseCase({
+    const addThreadUseCase = new AddThreadUseCase({
       threadRepository: mockThreadRepository,
     });
 
-    const newThread = await mockAddThreadUseCase.execute(
+    const actualCreatedThread = await addThreadUseCase.execute(
       useCasePayload,
-      "user-qwerty",
+      ownerId,
     );
 
-    expect(newThread).toStrictEqual(new CreatedThreadEntity({
+    expect(mockThreadRepository.addThread).toHaveBeenCalledWith(
+      useCasePayload,
+      ownerId,
+    );
+
+    expect(actualCreatedThread).toStrictEqual(new CreatedThreadEntity({
       id: "thread-qwerty",
       title: "Ini Adalah Testing",
       owner: "user-qwerty",
     }));
+
+    expect(mockThreadRepository.addThread).toHaveBeenCalledTimes(1);
   });
 });

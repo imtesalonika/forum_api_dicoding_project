@@ -1,6 +1,5 @@
 const ThreadRepository = require("../../Domains/threads/ThreadRepository");
 const CreatedThreadEntity = require("../../Domains/threads/entities/CreatedThreadEntity");
-const ThreadDetailEntity = require("../../Domains/threads/entities/ThreadDetailEntity");
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 
 class ThreadRepositoryPostgres extends ThreadRepository {
@@ -37,18 +36,20 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
     const result = await this._pool.query(query);
 
-    return result.rowCount > 0;
+    if (result.rowCount === 0) {
+      throw new NotFoundError("Tidak ada thread ditemukan pada database.");
+    }
   }
 
-  async getThreadDetails(threadId) {
-    const threadQuery = {
+  async getThreadById(threadId) { // Nama diubah dari getThreadDetails
+    const query = {
       text: `
       SELECT
         t.id,
         t.title,
         t.body,
         t.date,
-        u.username  
+        u.username
       FROM
         threads t
       JOIN
@@ -59,46 +60,13 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       values: [threadId],
     };
 
-    const threadResult = await this._pool.query(threadQuery);
+    const result = await this._pool.query(query);
 
-    if (threadResult.rows.length === 0) {
-      throw new NotFoundError("thread tidak ditemukan");
+    if (result.rows.length === 0) {
+      throw new NotFoundError("Detail thread tidak ditemukan");
     }
 
-    const threadData = threadResult.rows[0];
-
-    const commentQuery = {
-      text: `
-        SELECT
-          c.id,
-          CASE
-            WHEN c.is_delete = TRUE THEN '**komentar telah dihapus**'
-            ELSE c.content
-            END AS content, 
-          c.date,
-          u.username
-        FROM
-          comments c
-            JOIN
-          users u ON c.user_id = u.id
-        WHERE
-          c.thread_id = $1
-        ORDER BY
-          c.date ASC
-    `,
-      values: [threadId],
-    };
-
-    const commentResult = await this._pool.query(commentQuery);
-
-    return new ThreadDetailEntity({
-      id: threadData.id,
-      title: threadData.title,
-      body: threadData.body,
-      date: threadData.date,
-      username: threadData.username,
-      comments: commentResult.rows,
-    });
+    return result.rows[0];
   }
 }
 

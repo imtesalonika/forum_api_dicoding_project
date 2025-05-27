@@ -17,6 +17,18 @@ describe("ThreadDetailEntity", () => {
     },
   ];
 
+  it("seharusnya melempar error ketika payload adalah null atau undefined", () => {
+    const nullPayload = null;
+    const undefinedPayload = undefined;
+
+    expect(() => new ThreadDetailEntity(nullPayload)).toThrowError(
+      "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
+    );
+    expect(() => new ThreadDetailEntity(undefinedPayload)).toThrowError(
+      "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
+    );
+  });
+
   it("seharusnya melempar error ketika payload tidak mengandung properti yang dibutuhkan", () => {
     const payload1 = {
       title: "Judul",
@@ -60,6 +72,15 @@ describe("ThreadDetailEntity", () => {
       date: validDate,
       username: "user",
     };
+    const payload7 = {
+      id: null,
+      title: "Judul",
+      body: "Isi",
+      date: validDate,
+      username: "user",
+      comments: validComments,
+    };
+
 
     expect(() => new ThreadDetailEntity(payload1)).toThrowError(
       "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
@@ -76,11 +97,12 @@ describe("ThreadDetailEntity", () => {
     expect(() => new ThreadDetailEntity(payload5)).toThrowError(
       "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
     );
-    if (typeof payload6.comments === "undefined") {
-      expect(() => new ThreadDetailEntity(payload6)).toThrowError(
-        "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
-      );
-    }
+    expect(() => new ThreadDetailEntity(payload6)).toThrowError(
+      "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
+    );
+    expect(() => new ThreadDetailEntity(payload7)).toThrowError(
+      "THREAD_DETAIL_ENTITY.NOT_CONTAIN_NEEDED_PROPERTY",
+    );
   });
 
   it("seharusnya melempar error ketika payload tidak memenuhi spesifikasi tipe data", () => {
@@ -103,7 +125,7 @@ describe("ThreadDetailEntity", () => {
       () => new ThreadDetailEntity({ ...basePayload, body: 123 }),
     ).toThrowError("THREAD_DETAIL_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION");
     expect(
-      () => new ThreadDetailEntity({ ...basePayload, date: "2023-10-27" }),
+      () => new ThreadDetailEntity({ ...basePayload, date: "2023-10-27" }), // date bukan instance of Date
     ).toThrowError("THREAD_DETAIL_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION");
     expect(
       () => new ThreadDetailEntity({ ...basePayload, username: 123 }),
@@ -112,7 +134,7 @@ describe("ThreadDetailEntity", () => {
       () =>
         new ThreadDetailEntity({
           ...basePayload,
-          comments: "bukan array atau objek",
+          comments: "bukan array",
         }),
     ).toThrowError("THREAD_DETAIL_ENTITY.NOT_MEET_DATA_TYPE_SPECIFICATION");
   });

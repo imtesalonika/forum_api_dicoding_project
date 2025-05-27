@@ -35,22 +35,6 @@ const createServer = async (container) => {
     }),
   });
 
-  server.route({
-    method: "GET",
-    path: "/",
-    handler: (request, h) => {
-      return h.response({
-        status: "success",
-        message: "Forum API server is Online!!",
-      }).code(200);
-    },
-    options: {
-      auth: false,
-      description: 'Server status check',
-      tags: ['api', 'status'],
-    },
-  });
-
   await server.register([
     {
       plugin: users,
@@ -69,6 +53,22 @@ const createServer = async (container) => {
       options: { container },
     },
   ]);
+
+  server.route({
+    method: "GET",
+    path: "/",
+    handler: (request, h) => {
+      return h.response({
+        status: "success",
+        message: "Forum API server is Online!!",
+      }).code(200);
+    },
+    options: {
+      auth: false,
+      description: 'Server status check',
+      tags: ['api', 'status'],
+    },
+  })
 
   server.ext("onPreResponse", (request, h) => {
     // mendapatkan konteks response dari request
