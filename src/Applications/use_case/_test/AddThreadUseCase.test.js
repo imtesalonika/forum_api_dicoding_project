@@ -13,7 +13,7 @@ describe("AddThreadUseCase", () => {
     const mockThreadRepository = new ThreadRepository();
 
     const mockCreatedThreadEntity = new CreatedThreadEntity({
-      id: "thread-qwer",
+      id: "thread-qwerty",
       title: "Ini Adalah Testing",
       owner: "user-qwerty",
     });
