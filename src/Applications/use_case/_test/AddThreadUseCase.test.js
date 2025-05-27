@@ -13,7 +13,7 @@ describe("AddThreadUseCase", () => {
     const mockThreadRepository = new ThreadRepository();
 
     const mockCreatedThreadEntity = new CreatedThreadEntity({
-      id: "thread-qwerty",
+      id: "thread-qwer",
       title: "Ini Adalah Testing",
       owner: "user-qwerty",
     });
@@ -31,6 +31,10 @@ describe("AddThreadUseCase", () => {
       "user-qwerty",
     );
 
-    expect(newThread).toStrictEqual(mockCreatedThreadEntity);
+    expect(newThread).toStrictEqual(new CreatedThreadEntity({
+      id: "thread-qwerty",
+      title: "Ini Adalah Testing",
+      owner: "user-qwerty",
+    }));
   });
 });
