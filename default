@@ -56,8 +56,8 @@ server {
         }
 
         location /threads {
-                #limit_req zone=threads_zone;
-                limit_req zone=threads_zone burst=25 nodelay;
+                limit_req zone=threads_zone;
+                # limit_req zone=threads_zone burst=25 nodelay;
                 limit_req_status 429;
 
                 proxy_pass http://localhost:5000;
