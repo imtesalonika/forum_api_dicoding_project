@@ -61,7 +61,7 @@ describe("GetThreadDetailsUseCase", () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
 
-    mockThreadRepository.isThreadExists = jest.fn().mockResolvedValue(true);
+    mockThreadRepository.isThreadExists = jest.fn().mockImplementation(() => Promise.resolve());
 
     mockThreadRepository.getThreadById = jest.fn().mockResolvedValue(mockThreadFromRepo);
     mockCommentRepository.getCommentsByThreadId = jest.fn().mockResolvedValue(mockRawCommentsFromRepo);

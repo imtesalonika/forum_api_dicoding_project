@@ -22,6 +22,16 @@ class CommentRepository {
   /**
    *
    * @param commentId
+   * @param userId
+   * @returns {Promise<void>}
+   */
+  async isUserIsOwnerOfComment(commentId, userId) {
+    throw new Error("COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED");
+  }
+
+  /**
+   *
+   * @param commentId
    * @param threadId
    * @param ownerId
    * @returns {Promise<boolean>}

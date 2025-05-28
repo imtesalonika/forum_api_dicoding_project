@@ -5,11 +5,10 @@ const NewThreadEntities = require("../../../Domains/threads/entities/NewThreadEn
 
 describe("AddThreadUseCase", () => {
   it("berhasil menambahkan thread dengan payload yang valid dan memanggil repository dengan benar", async () => {
-    // Arrange
-    const useCasePayload = new NewThreadEntities({
+    const useCasePayload = {
       title: "Ini Adalah Testing",
       body: "Halo ini adalah testing.",
-    });
+    };
     const ownerId = "user-qwerty";
 
     const mockExpectedCreatedThreadFromRepo = new CreatedThreadEntity({
@@ -28,12 +27,15 @@ describe("AddThreadUseCase", () => {
     });
 
     const actualCreatedThread = await addThreadUseCase.execute(
-      useCasePayload,
+      new NewThreadEntities(useCasePayload),
       ownerId,
     );
 
     expect(mockThreadRepository.addThread).toHaveBeenCalledWith(
-      useCasePayload,
+      new NewThreadEntities({
+        title: "Ini Adalah Testing",
+        body: "Halo ini adalah testing.",
+      }),
       ownerId,
     );
 

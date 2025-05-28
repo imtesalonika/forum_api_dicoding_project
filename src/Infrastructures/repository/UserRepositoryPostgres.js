@@ -79,7 +79,7 @@ class UserRepositoryPostgres extends UserRepository {
     const result = await this._pool.query(query);
 
     if (result.rowCount < 1) {
-      throw NotFoundError(`user dengan id ${userId} tidak ditemukan`);
+      throw new NotFoundError(`user dengan id ${userId} tidak ditemukan`);
     }
 
     return new UserDataEntity({

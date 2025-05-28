@@ -6,15 +6,23 @@ const NewThreadEntities = require("../../../Domains/threads/entities/NewThreadEn
 const ThreadRepositoryPostgres = require("../ThreadRepositoryPostgres");
 const CreatedThreadEntity = require("../../../Domains/threads/entities/CreatedThreadEntity");
 const NotFoundError = require("../../../Commons/exceptions/NotFoundError");
-const ThreadDetailEntity = require("../../../Domains/threads/entities/ThreadDetailEntity");
 
 describe("ThreadRepositoryPostgres", () => {
   const mockIdGenerator = jest.fn(() => "qwerty");
+  let threadRepositoryPostgres;
+
+  beforeEach(() => {
+    threadRepositoryPostgres = new ThreadRepositoryPostgres(
+      pool,
+      mockIdGenerator,
+    );
+  });
 
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
+    mockIdGenerator.mockClear();
   });
 
   afterAll(async () => {
@@ -23,6 +31,7 @@ describe("ThreadRepositoryPostgres", () => {
 
   describe("addThread function", () => {
     it("berhasil menyimpan thread baru dan mengembalikan thread yang dibuat dengan benar", async () => {
+      // Arrange
       const newThread = new NewThreadEntities({
         title: "Ini adalah judul dari thread",
         body: "Ini adalah body thread",
@@ -34,11 +43,6 @@ describe("ThreadRepositoryPostgres", () => {
         password: "secretpassword",
         fullname: "Tesalonika Aprisda Sitopu",
       });
-
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(
-        pool,
-        mockIdGenerator,
-      );
 
       const createdThread = await threadRepositoryPostgres.addThread(
         newThread,
@@ -62,53 +66,70 @@ describe("ThreadRepositoryPostgres", () => {
   });
 
   describe("isThreadExists function", () => {
-    it("seharusnya mengembalikan false jika thread tidak ada", async () => {
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(
-        pool,
-        mockIdGenerator(),
-      );
-
-      await expect(threadRepositoryPostgres.isThreadExists("xxx")).rejects.toThrow(NotFoundError);
-    });
-  });
-
-  describe("getThreadDetails function", () => {
-    it("melemparkan NotFoundError jika thread tidak ada", async () => {
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(
-        pool,
-        mockIdGenerator(),
-      );
-
-      await expect(
-        threadRepositoryPostgres.getThreadById("xxx"),
-      ).rejects.toThrow(NotFoundError);
-    });
-
-    it("seharusnya mendapatkan detail thread dengan benar tanpa ada komentar", async () => {
-      const threadId = "thread-qwerty-baru";
-      const threadDate = new Date();
-      const userId = "user-qwertyZ";
-
-      await UsersTableTestHelper.addUser({
-        id: userId,
-        username: "tesalonikabaru",
-      });
+    it("seharusnya tidak melemparkan error jika thread ada", async () => {
+      // Arrange
+      const userId = "user-isThreadExists";
+      const threadId = "thread-isThreadExists-123";
+      await UsersTableTestHelper.addUser({ id: userId, username: "testerExists" });
       await ThreadsTableTestHelper.addThread({
         id: threadId,
         user_id: userId,
-        date: threadDate,
+        title: "Test Exists",
+        body: "Body Exists"
       });
 
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+      await expect(threadRepositoryPostgres.isThreadExists(threadId)).resolves.not.toThrow(NotFoundError);
+    });
+
+    it("seharusnya melemparkan NotFoundError jika thread tidak ada", async () => {
+      const nonExistentThreadId = "thread-xxx-nonexistent";
+
+      await expect(threadRepositoryPostgres.isThreadExists(nonExistentThreadId)).rejects.toThrow(NotFoundError);
+      await expect(threadRepositoryPostgres.isThreadExists(nonExistentThreadId)).rejects.toThrow("Tidak ada thread ditemukan pada database.");
+    });
+  });
+
+  describe("getThreadById function", () => {
+    it("melemparkan NotFoundError jika thread tidak ada", async () => {
+      const nonExistentThreadId = "thread-xxx-nonexistent";
+
+      await expect(
+        threadRepositoryPostgres.getThreadById(nonExistentThreadId),
+      ).rejects.toThrow(NotFoundError);
+      await expect(
+        threadRepositoryPostgres.getThreadById(nonExistentThreadId),
+      ).rejects.toThrow("Detail thread tidak ditemukan");
+    });
+
+    it("seharusnya mendapatkan detail thread dengan benar", async () => {
+      const threadId = "thread-qwerty-baru";
+      const threadDate = new Date();
+      const userId = "user-qwertyZ";
+      const threadTitle = "Ini adalah judul dari thread";
+      const threadBody = "Ini adalah body dari thread";
+      const username = "tesalonikabaru";
+
+
+      await UsersTableTestHelper.addUser({
+        id: userId,
+        username: username,
+      });
+      await ThreadsTableTestHelper.addThread({
+        id: threadId,
+        title: threadTitle,
+        body: threadBody,
+        user_id: userId,
+        date: threadDate,
+      });
 
       const threadDetails =
         await threadRepositoryPostgres.getThreadById(threadId);
 
       expect(threadDetails.id).toBe(threadId);
-      expect(threadDetails.title).toBe("Ini adalah judul dari thread");
-      expect(threadDetails.body).toBe("Ini adalah body dari thread");
+      expect(threadDetails.title).toBe(threadTitle);
+      expect(threadDetails.body).toBe(threadBody);
       expect(threadDetails.date.toISOString()).toBe(threadDate.toISOString());
-      expect(threadDetails.username).toBe("tesalonikabaru");
+      expect(threadDetails.username).toBe(username);
     });
   });
 });

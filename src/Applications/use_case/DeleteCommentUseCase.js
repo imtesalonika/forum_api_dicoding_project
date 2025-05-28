@@ -1,4 +1,3 @@
-const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
 const DeleteCommentEntity = require("../../Domains/comments/entities/DeleteCommentEntity");
 
 class DeleteCommentUseCase {
@@ -12,15 +11,12 @@ class DeleteCommentUseCase {
       threadId,
       userId,
     });
+
+    await this._commentRepository.isUserIsOwnerOfComment(commentId, userId);
+
     const comment = await this._commentRepository.getComment(
       deleteCommentEntity.commentId,
     );
-
-    if (userId !== comment.userId) {
-      throw new AuthorizationError(
-        `user ${userId} bukan pemilik dari comment ${deleteCommentEntity.commentId}`,
-      );
-    }
 
     return await this._commentRepository.deleteComment(
       comment.id,

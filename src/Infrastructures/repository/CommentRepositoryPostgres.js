@@ -3,6 +3,7 @@ const CommentRepository = require("../../Domains/comments/CommentRepository");
 const CommentEntity = require("../../Domains/comments/entities/CommentEntity");
 const NotFoundError = require("../../Commons/exceptions/NotFoundError");
 const InvariantError = require("../../Commons/exceptions/InvariantError");
+const AuthorizationError = require("../../Commons/exceptions/AuthorizationError");
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -87,6 +88,35 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const result = await this._pool.query(query);
     return result.rows;
+  }
+
+  async isUserIsOwnerOfComment(commentId, userId) {
+    const query = {
+      text: `SELECT * FROM comments WHERE id = $1`,
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError("comment not found");
+    }
+
+    const comment = new CommentEntity({
+      id: result.rows[0].id,
+      content: result.rows[0].content,
+      date: result.rows[0].date,
+      userId: result.rows[0].user_id,
+      threadId: result.rows[0].thread_id,
+      isDelete: result.rows[0].is_delete,
+    });
+
+
+    if (comment.userId !== userId) {
+      throw new AuthorizationError(
+        `user ${userId} bukan pemilik dari comment ${commentId}`,
+      );
+    }
   }
 }
 
