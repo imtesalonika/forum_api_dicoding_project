@@ -7,7 +7,7 @@ describe("CommentRepository interface", () => {
       "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED",
     );
     await expect(commentRepository.getComment("")).rejects.toThrowError(
-      "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTED",
+      "COMMENT_REPOSITORY.METHOD_NOT_IMPLEMENTEt",
     );
     await expect(
       commentRepository.deleteComment("", "", ""),
